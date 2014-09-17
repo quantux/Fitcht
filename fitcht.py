@@ -139,6 +139,8 @@ def nuke(command):
 					break;
 					# if not protocol(client_socket, "list"):
 					# 	break
+					
+			return True
 
 		if command == "/help":
 			print('Bem vindo ao helper do Fitcht.\n')
