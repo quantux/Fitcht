@@ -33,6 +33,19 @@ def mylocal():
 	local.connect(('google.com', 0))
 	return local.getsockname()[0]
 
+#Trata os protocolos entre cliente e servidor
+def protocol(socket, function):
+	socket_prot = socket
+
+	if function == "list":
+		try:
+			socket_prot.send("request: list")
+		except:
+			print "Conexão perdida com o servidor, desconectando..."
+			socket_prot.close()
+			return False
+
+
 #Essa função vai tratar toda a entrada de comandos no programa
 def nuke(command):
 	if  command != "/start" and \
@@ -89,6 +102,7 @@ def nuke(command):
 			print "Entrando em modo cliente."
 			print "Sala IP:"
 			host = raw_input(">")
+			lista = ""
 			try:
 				client_socket.connect((host, port))
 			except:
@@ -110,6 +124,12 @@ def nuke(command):
 					print "Saindo do modo cliente e desconectando do servidor..."
 					client_socket.close()
 					break
+
+				if next == "/list":
+						if not protocol(client_socket, "list"):
+							break
+
+
 
 			return True
 
