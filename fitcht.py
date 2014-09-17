@@ -103,9 +103,6 @@ def nuke(command):
 						print "Iniciando adição de arquivos."
 						break
 
-
-
-
 			return True;
 
 		if command == "/join":
@@ -120,7 +117,7 @@ def nuke(command):
 				client_socket.connect((host, port))
 			except:
 				print "Impossivel conectar a essa sala, tenha certeza que o IP esta correto"
-				return False
+				return True
 
 			print "Conectado com o servidor! Digite /help para ajuda."
 
@@ -143,6 +140,12 @@ def nuke(command):
 					# if not protocol(client_socket, "list"):
 					# 	break
 
+		if command == "/help":
+			print('Bem vindo ao helper do Fitcht.\n')
+			print('1. /start - Inicia uma instância de servidor para compartilhar arquivos.\n')
+			print('2. /help  - Mostra este guia de Help\n')
+			print('3. /join  - Conecta você a um servidor de compartilhamento de arquivos Fitcht\n')
+			print('4. /exit  - Sai do Fitcht')
 
 
 			return True
