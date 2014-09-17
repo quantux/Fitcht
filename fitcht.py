@@ -3,6 +3,7 @@
 import sys
 import socket
 import urllib2
+import select
 
 #Globais
 port = 0
@@ -57,6 +58,28 @@ def nuke(command):
 			print "Sala de arquivos iniciada em: " + host_ip + ":" + str(port) + "."
 			print "Digite /add para adicionar arquivos ou /stop para fechar a sala."
 
+			#Loop do /start
+			while (True):
+				next = get()
+				
+				if  next != "/add" and \
+					next != "/stop" and \
+					next != "/list" and \
+					next != "/users":
+					print "Comando inválido! Digite /help para ajuda."
+
+				if next == "/stop":
+					host_socket.close()
+					print "A sala foi fechada, voltando para o programa..."
+					break
+				
+				if next == "/add":
+						print "Iniciando adição de arquivos."
+						break
+
+
+
+
 			return True;
 
 		if command == "/join":
@@ -70,7 +93,26 @@ def nuke(command):
 				client_socket.connect((host, port))
 			except:
 				print "Impossivel conectar a essa sala, tenha certeza que o IP esta correto"
-				return True;	
+				return True
+
+			print "Conectado com o servidor! Digite /help para ajuda."
+
+			#Loop do /join
+			while (True):
+				next = get()
+				
+				if  next != "/all" and \
+					next != "/quit" and \
+					next != "/list":
+					print "Comando inválido! Digite /help para ajuda."
+
+				if next == "/quit":
+					print "Saindo do modo cliente e desconectando do servidor..."
+					client_socket.close()
+					break
+
+			return True
+
 
 #Função main do programa
 if __name__ == '__main__':
