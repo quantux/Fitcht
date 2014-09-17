@@ -37,6 +37,7 @@ def mylocal():
 
 #Trata os protocolos entre cliente e servidor
 <<<<<<< HEAD
+<<<<<<< HEAD
 def protocol(socket, function):
 	socket_prot = socket
 
@@ -48,6 +49,8 @@ def protocol(socket, function):
 			socket_prot.close()
 			return False
 =======
+=======
+>>>>>>> 3909ca9a50d27c1a3ca0080b323034f9b9c68c68
 # def protocol(socket, function):
 # 	socket_prot = socket
 
@@ -64,6 +67,9 @@ def serverListen_thread():
 	while True:
 		print('Esta função é chamada pela thread e implementará a rotina de download de arquivos :)')
 		time.sleep(2)
+<<<<<<< HEAD
+>>>>>>> 3909ca9a50d27c1a3ca0080b323034f9b9c68c68
+=======
 >>>>>>> 3909ca9a50d27c1a3ca0080b323034f9b9c68c68
 
 
@@ -150,10 +156,13 @@ def nuke(command):
 
 				if next == "/list":
 <<<<<<< HEAD
+<<<<<<< HEAD
 						if not protocol(client_socket, "list"):
 							break
 
 =======
+=======
+>>>>>>> 3909ca9a50d27c1a3ca0080b323034f9b9c68c68
 					break;
 					# if not protocol(client_socket, "list"):
 					# 	break
@@ -166,6 +175,9 @@ def nuke(command):
 			print('2. /help  - Mostra este guia de Help\n')
 			print('3. /join  - Conecta você a um servidor de compartilhamento de arquivos Fitcht\n')
 			print('4. /exit  - Sai do Fitcht')
+<<<<<<< HEAD
+>>>>>>> 3909ca9a50d27c1a3ca0080b323034f9b9c68c68
+=======
 >>>>>>> 3909ca9a50d27c1a3ca0080b323034f9b9c68c68
 
 
