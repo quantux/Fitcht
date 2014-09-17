@@ -4,6 +4,8 @@ import sys
 import socket
 import urllib2
 import select
+import thread
+import time
 
 #Globais
 port = 0
@@ -34,6 +36,7 @@ def mylocal():
 	return local.getsockname()[0]
 
 #Trata os protocolos entre cliente e servidor
+<<<<<<< HEAD
 def protocol(socket, function):
 	socket_prot = socket
 
@@ -44,6 +47,24 @@ def protocol(socket, function):
 			print "Conexão perdida com o servidor, desconectando..."
 			socket_prot.close()
 			return False
+=======
+# def protocol(socket, function):
+# 	socket_prot = socket
+
+# 	if function == "list":
+# 		try:
+# 			socket_prot.send("request: list")
+# 		except:
+# 			print "Conexão perdida com o servidor, desconectando..."
+# 			socket_prot.close()
+# 			return False
+
+# Thread para ouvir o socket do servidor
+def serverListen_thread():
+	while True:
+		print('Esta função é chamada pela thread e implementará a rotina de download de arquivos :)')
+		time.sleep(2)
+>>>>>>> 3909ca9a50d27c1a3ca0080b323034f9b9c68c68
 
 
 #Essa função vai tratar toda a entrada de comandos no programa
@@ -59,6 +80,11 @@ def nuke(command):
 				return False
 
 		if command == "/start":
+
+			try:
+				thread.start_new_thread(serverListen_thread, ())
+			except:
+				print('Não foi possível receber os dados do servidor')
 
 			host_ip = str(mylocal())
 
@@ -89,9 +115,6 @@ def nuke(command):
 				if next == "/add":
 						print "Iniciando adição de arquivos."
 						break
-
-
-
 
 			return True;
 
@@ -126,9 +149,24 @@ def nuke(command):
 					break
 
 				if next == "/list":
+<<<<<<< HEAD
 						if not protocol(client_socket, "list"):
 							break
 
+=======
+					break;
+					# if not protocol(client_socket, "list"):
+					# 	break
+					
+			return True
+
+		if command == "/help":
+			print('Bem vindo ao helper do Fitcht.\n')
+			print('1. /start - Inicia uma instância de servidor para compartilhar arquivos.\n')
+			print('2. /help  - Mostra este guia de Help\n')
+			print('3. /join  - Conecta você a um servidor de compartilhamento de arquivos Fitcht\n')
+			print('4. /exit  - Sai do Fitcht')
+>>>>>>> 3909ca9a50d27c1a3ca0080b323034f9b9c68c68
 
 
 			return True
