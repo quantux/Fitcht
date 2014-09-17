@@ -4,6 +4,8 @@ import sys
 import socket
 import urllib2
 import select
+import thread
+import time
 
 #Globais
 port = 0
@@ -33,6 +35,25 @@ def mylocal():
 	local.connect(('google.com', 0))
 	return local.getsockname()[0]
 
+#Trata os protocolos entre cliente e servidor
+# def protocol(socket, function):
+# 	socket_prot = socket
+
+# 	if function == "list":
+# 		try:
+# 			socket_prot.send("request: list")
+# 		except:
+# 			print "Conexão perdida com o servidor, desconectando..."
+# 			socket_prot.close()
+# 			return False
+
+# Thread para ouvir o socket do servidor
+def serverListen_thread():
+	while True:
+		print('Esta função é chamada pela thread e implementará a rotina de download de arquivos :)')
+		time.sleep(2)
+
+
 #Essa função vai tratar toda a entrada de comandos no programa
 def nuke(command):
 	if  command != "/start" and \
@@ -46,6 +67,11 @@ def nuke(command):
 				return False
 
 		if command == "/start":
+
+			try:
+				thread.start_new_thread(serverListen_thread, ())
+			except:
+				print('Não foi possível receber os dados do servidor')
 
 			host_ip = str(mylocal())
 
@@ -89,11 +115,12 @@ def nuke(command):
 			print "Entrando em modo cliente."
 			print "Sala IP:"
 			host = raw_input(">")
+			lista = ""
 			try:
 				client_socket.connect((host, port))
 			except:
 				print "Impossivel conectar a essa sala, tenha certeza que o IP esta correto"
-				return True
+				return False
 
 			print "Conectado com o servidor! Digite /help para ajuda."
 
@@ -110,6 +137,13 @@ def nuke(command):
 					print "Saindo do modo cliente e desconectando do servidor..."
 					client_socket.close()
 					break
+
+				if next == "/list":
+					break;
+					# if not protocol(client_socket, "list"):
+					# 	break
+
+
 
 			return True
 
