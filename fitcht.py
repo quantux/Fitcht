@@ -64,12 +64,17 @@ def prompt():
 	sys.stdout.write(">")
 	sys.stdout.flush()
 
+#Funçao para enviar request para o servidor e armazenar os dados no client-side
+def request(sock, listt):
+	pass
+	
 # Thread para ouvir o socket do servidor
-def serverListen_thread(sock, listt):
+def serverListen_thread(sock, listt, users):
 	while True:
 
 		BUFFER = 4096
 		CONNECTION_LIST = listt
+		USERS_LIST = users
 		host_socket = sock
 
 		read_sockets, write_sockets, error_sockets = select.select(CONNECTION_LIST, [], [])
@@ -79,6 +84,8 @@ def serverListen_thread(sock, listt):
 				sockfd, addr = host_socket.accept()
 				CONNECTION_LIST.append(sockfd)
 				print "Cliente (%s, %s) conectado" %addr
+				usr = "(%s, %s)" %addr
+				USERS_LIST.append(usr)
 				prompt()
 			else:
 				try:
@@ -108,6 +115,8 @@ def nuke(command):
 
 		if command == "/start":
 
+			#Listas 
+			USERS_LIST = []
 			CONNECTION_LIST = []
 			FILES_LIST = []
 
@@ -123,7 +132,7 @@ def nuke(command):
 
 			#Incia a thread para verificações de socket
 			try:
-				thread.start_new_thread(serverListen_thread, (host_socket, CONNECTION_LIST))
+				thread.start_new_thread(serverListen_thread, (host_socket, CONNECTION_LIST, USERS_LIST))
 			except:
 				print('Não foi possível receber os dados do servidor')
 
@@ -156,11 +165,18 @@ def nuke(command):
 
 				if next == "/list":
 					print FILES_LIST
+
+				if next == "/users":
+					print USERS_LIST
 						
 
 			return True;
 
 		if command == "/join":
+
+			#Lista de arquivos para o cliente
+			CLIENT_FILE_LIST = []
+
 			#Inicia todo o processo para conectar na sala
 			client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			client_socket.settimeout(2)
@@ -175,6 +191,8 @@ def nuke(command):
 				return True
 
 			print "Conectado com o servidor! Digite /help para ajuda."
+
+			request(client_socket, CLIENT_FILE_LIST)
 
 			#Loop do /join
 			while (True):
