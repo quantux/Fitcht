@@ -66,8 +66,24 @@ def prompt():
 
 #Funçao para enviar request para o servidor e armazenar os dados no client-side
 def request(sock, listt):
-	pass
-	
+	client_socket = sock
+	CLIENT_FILE_LIST = listt
+
+	client_socket.send("protocol: list")
+	while (True):
+		socket_list = [sys.stdin, client_socket]
+		
+		read_sockets, write_sockets, error_sockets = select.select(socket_list, [], [])
+		for sock in read_sockets:
+			if sock == client_socket:
+				data = sock.recv(4096)
+				if not data:
+					print '\nDesconectado do servidor'
+					sys.exit()
+				else:
+					return data
+					break
+
 # Thread para ouvir o socket do servidor
 def serverListen_thread(sock, listt, users):
 	while True:
@@ -92,10 +108,13 @@ def serverListen_thread(sock, listt, users):
 					data = sock.recv(BUFFER)
 					if data:
 						print data
+						host_socket.send(data)
 				except:
 					print "Cliente (%s, %s) esta offline" %addr
 					sock.close()
 					CONNECTION_LIST.remove(sock)
+					USERS_LIST.remove(usr)
+					prompt()
 					continue
 
 
@@ -192,7 +211,8 @@ def nuke(command):
 
 			print "Conectado com o servidor! Digite /help para ajuda."
 
-			request(client_socket, CLIENT_FILE_LIST)
+			r = request(client_socket, CLIENT_FILE_LIST)
+			print r
 
 			#Loop do /join
 			while (True):
