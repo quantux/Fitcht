@@ -120,7 +120,7 @@ def clientListen_thread(cl_socket):
 		if sock == cl_socket:
 			data = sock.recv(4096)
 			if not data:
-				print '\nDisconectado do servidor'
+				print '\nDesconectado do servidor'
 				sys.exit()
 			else:
 				sys.stdout.write(data)
@@ -227,7 +227,7 @@ def nuke(command):
 
 			# Rotina para instanciamento do Thread client
 			try:
-				thread.start_new_thread(clientListen_thread, (client_socket))
+				thread.start_new_thread(clientListen_thread, (client_socket, ))
 			except:
 				print('Não foi possível iniciar a thread do cliente.')
 			
