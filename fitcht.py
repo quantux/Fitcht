@@ -64,34 +64,26 @@ def prompt():
 	sys.stdout.write(">")
 	sys.stdout.flush()
 
-#Funçao para enviar request para o servidor e armazenar os dados no client-side
-def request(sock, listt):
-	client_socket = sock
-	CLIENT_FILE_LIST = listt
-
-	client_socket.send("protocol: list")
-	while (True):
-		socket_list = [sys.stdin, client_socket]
-		
-		read_sockets, write_sockets, error_sockets = select.select(socket_list, [], [])
-		for sock in read_sockets:
-			if sock == client_socket:
-				data = sock.recv(4096)
-				if not data:
-					print '\nDesconectado do servidor'
-					sys.exit()
-				else:
-					return data
-					break
+#Função para o servidor responder a todos os clientes
+def awnser(host, sock, message, lista):
+	CONNECTION_LIST = lista
+	for socket in CONNECTION_LIST:
+		if socket != host and socket != sock:
+			try:
+				socket.send(message)
+			except:
+				socket.close()
+				CONNECTION_LIST.remove(socket)
 
 # Thread para ouvir o socket do servidor
-def serverListen_thread(sock, listt, users):
+def serverListen_thread(sock, listt, users, files):
 	while True:
 
 		BUFFER = 4096
 		CONNECTION_LIST = listt
 		USERS_LIST = users
 		host_socket = sock
+		FILES_LIST = files
 
 		read_sockets, write_sockets, error_sockets = select.select(CONNECTION_LIST, [], [])
 
@@ -100,6 +92,7 @@ def serverListen_thread(sock, listt, users):
 				sockfd, addr = host_socket.accept()
 				CONNECTION_LIST.append(sockfd)
 				print "Cliente (%s, %s) conectado" %addr
+				awnser(host_socket, sock, str(USERS_LIST), CONNECTION_LIST)
 				usr = "(%s, %s)" %addr
 				USERS_LIST.append(usr)
 				prompt()
@@ -108,7 +101,6 @@ def serverListen_thread(sock, listt, users):
 					data = sock.recv(BUFFER)
 					if data:
 						print data
-						host_socket.send(data)
 				except:
 					print "Cliente (%s, %s) esta offline" %addr
 					sock.close()
@@ -151,7 +143,7 @@ def nuke(command):
 
 			#Incia a thread para verificações de socket
 			try:
-				thread.start_new_thread(serverListen_thread, (host_socket, CONNECTION_LIST, USERS_LIST))
+				thread.start_new_thread(serverListen_thread, (host_socket, CONNECTION_LIST, USERS_LIST, FILES_LIST))
 			except:
 				print('Não foi possível receber os dados do servidor')
 
@@ -210,10 +202,7 @@ def nuke(command):
 				return True
 
 			print "Conectado com o servidor! Digite /help para ajuda."
-
-			r = request(client_socket, CLIENT_FILE_LIST)
-			print r
-
+			
 			#Loop do /join
 			while (True):
 				next = get()
