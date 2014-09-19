@@ -92,7 +92,7 @@ def serverListen_thread(sock, listt, users, files):
 				sockfd, addr = host_socket.accept()
 				CONNECTION_LIST.append(sockfd)
 				print "Cliente (%s, %s) conectado" %addr
-				awnser(host_socket, sock, str(USERS_LIST), CONNECTION_LIST)
+				awnser(host_socket, sock, str(FILES_LIST), CONNECTION_LIST)
 				usr = "(%s, %s)" %addr
 				USERS_LIST.append(usr)
 				prompt()
@@ -123,7 +123,7 @@ def clientListen_thread(cl_socket):
 				print '\nDesconectado do servidor'
 				sys.exit()
 			else:
-				sys.stdout.write(data)
+				sys.stdout.write(data + "\n")
 				prompt()
 		else:
 			#msg = sys.stdin.readline()
