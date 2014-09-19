@@ -117,8 +117,13 @@ def serverListen_thread(sock, listt, users):
 					prompt()
 					continue
 
-
 		time.sleep(2)
+
+# Thread para ouvir o socket do cliente (?)
+def clientListen_thread(args, kwargs):
+	print("Imprimindo mensagem na thread do cliente")
+	time.sleep(2)
+
 
 #Essa função vai tratar toda a entrada de comandos no programa
 def nuke(command):
@@ -203,6 +208,14 @@ def nuke(command):
 			print "Sala IP:"
 			host = raw_input(">")
 			lista = ""
+
+			# Rotina para instanciamento do Thread client
+			try:
+				thread.start_new_thread(clientListen_thread, (args, kwargs))
+			except:
+				print('Não foi possível iniciar a thread do cliente.')
+
+
 			try:
 				client_socket.connect((host, port))
 			except:
