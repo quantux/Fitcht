@@ -112,8 +112,25 @@ def serverListen_thread(sock, listt, users, files):
 		time.sleep(2)
 
 # Thread para ouvir o socket do cliente (?)
-def clientListen_thread(args, kwargs):
-	print("Imprimindo mensagem na thread do cliente")
+def clientListen_thread(cl_socket):
+	socket_list = [sys.stdin, cl_socket]
+		
+	read_sockets, write_sockets, error_sockets = select.select(socket_list, [], [])
+	for sock in read_sockets:
+		if sock == cl_socket:
+			data = sock.recv(4096)
+			if not data:
+				print '\nDisconectado do servidor'
+				sys.exit()
+			else:
+				sys.stdout.write(data)
+				prompt()
+		else:
+			#msg = sys.stdin.readline()
+			#cl_socket.send(msg)
+			#prompt()
+			continue
+
 	time.sleep(2)
 
 
@@ -199,15 +216,7 @@ def nuke(command):
 			print "Entrando em modo cliente."
 			print "Sala IP:"
 			host = raw_input(">")
-			lista = ""
-
-			# Rotina para instanciamento do Thread client
-			try:
-				thread.start_new_thread(clientListen_thread, (args, kwargs))
-			except:
-				print('Não foi possível iniciar a thread do cliente.')
-
-
+			
 			try:
 				client_socket.connect((host, port))
 			except:
@@ -215,6 +224,12 @@ def nuke(command):
 				return True
 
 			print "Conectado com o servidor! Digite /help para ajuda."
+
+			# Rotina para instanciamento do Thread client
+			try:
+				thread.start_new_thread(clientListen_thread, (client_socket))
+			except:
+				print('Não foi possível iniciar a thread do cliente.')
 			
 			#Loop do /join
 			while (True):
