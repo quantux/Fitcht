@@ -7,6 +7,7 @@ import select
 import thread
 import time
 import os
+import readline
 
 #Globais
 port = 0
@@ -20,6 +21,8 @@ def setup():
 	#Seta a porta
 	global port
 	port = 10647
+
+	readline.parse_and_bind("tab: complete")
 
 #Captura uma linha de comando para o nuke
 def get():
