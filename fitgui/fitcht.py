@@ -1,4 +1,12 @@
+#!/usr/bin/python
+#-*-coding: utf-8 -*-
 import sys, os
+import socket
+import urllib2
+import select
+import thread
+import time
+import readline
 from PyQt4 import QtCore, QtGui
 
 try:
@@ -23,7 +31,7 @@ class Ui_Dialog(QtGui.QMainWindow):
 		Dialog.setMinimumSize(QtCore.QSize(615, 488))
 		Dialog.setMaximumSize(QtCore.QSize(615, 488))
 		Dialog.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
-		self.list = []
+
 		icon = QtGui.QIcon()
 		icon.addPixmap(QtGui.QPixmap(_fromUtf8("resources/fitcht.bmp")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		Dialog.setWindowIcon(icon)
@@ -89,33 +97,219 @@ class Ui_Dialog(QtGui.QMainWindow):
 
 		self.retranslateUi(Dialog)
 		QtCore.QMetaObject.connectSlotsByName(Dialog)
+		self.center()
+		self.startServer()
 
+	# Callback Function to Add Files Button
 	def openFileButtonCallback(self):
+
 		fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.')
-		fileNameWithoutDirectory = os.path.basename(str(fileName))
-		fileExtension = os.path.splitext(fileNameWithoutDirectory)[1][1:]
-		item = QtGui.QListWidgetItem()
-		icon8 = QtGui.QIcon()
-		if not os.path.isfile('resources/fileExtensionIcons/%s-icon.png' % fileExtension):
-			fileExtension = 'undefined'
-		icon8.addPixmap(QtGui.QPixmap(_fromUtf8("resources/fileExtensionIcons/%s-icon.png" % str(fileExtension))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-		item.setIcon(icon8)
-		item.setText(_translate("Dialog", ("%s" % fileNameWithoutDirectory), None))
-		self.listWidget.addItem(item)
-		self.list.append([item, str(fileName)])
-		print self.list
+		if fileName != '':
+			fileNameWithoutDirectory = os.path.basename(str(fileName))
+			fileExtension = os.path.splitext(fileNameWithoutDirectory)[1][1:]
+
+			item = QtGui.QListWidgetItem()
+			icon8 = QtGui.QIcon()
+			if not os.path.isfile('resources/fileExtensionIcons/%s-icon.png' % fileExtension):
+				fileExtension = 'undefined'
+			icon8.addPixmap(QtGui.QPixmap(_fromUtf8("resources/fileExtensionIcons/%s-icon.png" % str(fileExtension))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+			item.setIcon(icon8)
+			item.setText(_translate("Dialog", ("%s" % fileNameWithoutDirectory), None))
+
+			self.listWidget.addItem(item)
+			self.FILES_LIST.append([item, str(fileName)])
+			print self.FILES_LIST
 
 	def deleteCallBackFunction(self):
-		for itemIndex, itemDirectory in self.list:
+		for itemIndex, itemDirectory in self.FILES_LIST:
 			if self.listWidget.currentItem() == itemIndex:
-				self.list.remove([itemIndex, itemDirectory])
+				self.FILES_LIST.remove([itemIndex, itemDirectory])
 		self.listWidget.takeItem(self.listWidget.currentRow())
-		print self.list
+		print self.FILES_LIST
 
 	def DisconnectButtonCallback(self):
 		self.close()
 		sys.exit()
 
+	def center(self):
+		frameGm = self.frameGeometry()
+		centerPoint = QtGui.QDesktopWidget().availableGeometry().center()
+		frameGm.moveCenter(centerPoint)
+		self.move(frameGm.topLeft())
+
+	def startServer(self):
+		#Start Server Sockets Routine
+
+		#Port
+		self.port = 10647
+
+		#Listas 
+		self.USERS_LIST = []
+		self.CONNECTION_LIST = []
+		self.FILES_LIST = []
+
+		host_ip = str(self.mylocal())
+
+		#Inicia todo processo para formação de uma sala aqui
+		host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		host_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		host_socket.bind((host_ip, self.port))
+		host_socket.listen(10)
+
+		self.CONNECTION_LIST.append(host_socket)
+
+		#Incia a thread para verificações de socket
+		try:
+			thread.start_new_thread(self.serverListen_thread, (host_socket, self.CONNECTION_LIST, self.USERS_LIST, self.FILES_LIST))
+		except:
+			print('Não foi possível receber os dados do servidor')
+
+		print "Sala de arquivos iniciada em: " + host_ip + ":" + str(self.port) + "."
+
+
+	#Essa função vai tratar toda a entrada de comandos no programa
+	# def nuke(self):
+
+	# 	#Listas 
+	# 	USERS_LIST = []
+	# 	CONNECTION_LIST = []
+	# 	FILES_LIST = []
+
+	# 	host_ip = str(mylocal())
+
+	# 	#Inicia todo processo para formação de uma sala aqui
+	# 	host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	# 	host_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	# 	host_socket.bind((host_ip, self.port))
+	# 	host_socket.listen(10)
+
+	# 	CONNECTION_LIST.append(host_socket)
+
+	# 	#Incia a thread para verificações de socket
+	# 	try:
+	# 		thread.start_new_thread(serverListen_thread, (host_socket, CONNECTION_LIST, USERS_LIST, FILES_LIST))
+	# 	except:
+	# 		print('Não foi possível receber os dados do servidor')
+
+	# 	print "Sala de arquivos iniciada em: " + host_ip + ":" + str(port) + "."
+
+	# 	if next == "/stop":
+	# 		host_socket.close()
+	# 		CONNECTION_LIST = []
+	# 		FILES_LIST = []
+	# 		print "A sala foi fechada, voltando para o programa..."
+					
+	# 	if next == "/add":
+	# 		print "Iniciando adição de arquivos."
+	# 		print "Entre com o caminho do arquivo:"
+	# 		caminho = str(raw_input(">"))
+	# 		open_files(caminho, FILES_LIST)
+	# 		print "Feito."
+
+	# 	if next == "/list":
+	# 		print FILES_LIST
+
+	# 	if next == "/users":
+	# 		print USERS_LIST
+							
+
+	# 	return True;
+
+	# if command == "/join":
+
+	# 	#Lista de arquivos para o cliente
+	# 	CLIENT_FILE_LIST = []
+
+	# 	#Inicia todo o processo para conectar na sala
+	# 	client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	# 	client_socket.settimeout(2)
+	# 	print "Entrando em modo cliente."
+	# 	print "Sala IP:"
+	# 	host = raw_input(">")
+				
+	# 	try:
+	# 		client_socket.connect((host, port))
+	# 	except:
+	# 		print "Impossivel conectar a essa sala, tenha certeza que o IP esta correto"
+	# 		return True
+
+	# 	print "Conectado com o servidor! Digite /help para ajuda."
+
+	# 	# Rotina para instanciamento do Thread client
+	# 	try:
+	# 		thread.start_new_thread(clientListen_thread, (client_socket, ))
+	# 	except:
+	# 		print('Não foi possível iniciar a thread do cliente.')
+				
+	# 	#Loop do /join
+	# 	while (True):
+	# 		next = get()
+					
+	# 		if  next != "/all" and \
+	# 			next != "/quit" and \
+	# 			next != "/list":
+	# 			print "Comando inválido! Digite /help para ajuda."
+
+	# 		if next == "/quit":
+	# 			print "Saindo do modo cliente e desconectando do servidor..."
+	# 			client_socket.close()
+	# 			break
+
+	# 		if next == "/list":
+	# 			break
+						
+	# 	return True
+
+	def mylocal(self):
+		local = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		local.connect(('google.com', 0))
+		return local.getsockname()[0]
+
+	# Thread para ouvir o socket do servidor
+	def serverListen_thread(self, sock, listt, users, files):
+		while True:
+
+			BUFFER = 4096
+			CONNECTION_LIST = listt
+			USERS_LIST = users
+			host_socket = sock
+			FILES_LIST = files
+
+			read_sockets, write_sockets, error_sockets = select.select(CONNECTION_LIST, [], [])
+
+			for sock in read_sockets:
+				if sock == host_socket:
+					sockfd, addr = host_socket.accept()
+					self.CONNECTION_LIST.append(sockfd)
+					print "Cliente (%s, %s) conectado" %addr
+					self.awnser(host_socket, sock, str(FILES_LIST), CONNECTION_LIST)
+					usr = "(%s, %s)" %addr
+					USERS_LIST.append(usr)
+				else:
+					try:
+						data = sock.recv(BUFFER)
+						if data:
+							print data
+					except:
+						print "Cliente (%s, %s) esta offline" %addr
+						sock.close()
+						self.CONNECTION_LIST.remove(sock)
+						USERS_LIST.remove(usr)
+						continue
+
+			time.sleep(2)
+
+
+	#Função para o servidor responder a todos os clientes
+	def awnser(self, host, sock, message, lista):
+		CONNECTION_LIST = lista
+		for socket in CONNECTION_LIST:
+			if socket != host and socket != sock:
+				try:
+					socket.send(message)
+				except:
+					socket.close()
+					CONNECTION_LIST.remove(socket)
 
 	def retranslateUi(self, Dialog):
 		Dialog.setWindowTitle(_translate("Dialog", "Fitcht", None))
