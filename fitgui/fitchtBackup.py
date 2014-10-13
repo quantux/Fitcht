@@ -9,8 +9,6 @@ import time
 import readline
 from PyQt4 import QtCore, QtGui
 
-import pdb
-
 try:
 	_fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -100,46 +98,9 @@ class Ui_Dialog(QtGui.QMainWindow):
 		self.retranslateUi(Dialog)
 		QtCore.QMetaObject.connectSlotsByName(Dialog)
 		self.center()
-		self.startServer()
 
 	# Callback Function to Add Files Button
 	def openFileButtonCallback(self):
-
-		fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.')
-		if fileName != '':
-			fileNameWithoutDirectory = os.path.basename(str(fileName))
-			fileExtension = os.path.splitext(fileNameWithoutDirectory)[1][1:]
-
-			item = QtGui.QListWidgetItem()
-			icon8 = QtGui.QIcon()
-			if not os.path.isfile('resources/fileExtensionIcons/%s-icon.png' % fileExtension):
-				fileExtension = 'undefined'
-			icon8.addPixmap(QtGui.QPixmap(_fromUtf8("resources/fileExtensionIcons/%s-icon.png" % str(fileExtension))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-			item.setIcon(icon8)
-			item.setText(_translate("Dialog", ("%s" % fileNameWithoutDirectory), None))
-
-			self.listWidget.addItem(item)
-			self.FILES_LIST.append([str(item), str(fileName)])
-			print self.FILES_LIST
-
-	def deleteCallBackFunction(self):
-		for itemIndex, itemDirectory in self.FILES_LIST:
-			if self.listWidget.currentItem() == itemIndex:
-				self.FILES_LIST.remove([itemIndex, itemDirectory])
-		self.listWidget.takeItem(self.listWidget.currentRow())
-		print self.FILES_LIST
-
-	def DisconnectButtonCallback(self):
-		self.close()
-		sys.exit()
-
-	def center(self):
-		frameGm = self.frameGeometry()
-		centerPoint = QtGui.QDesktopWidget().availableGeometry().center()
-		frameGm.moveCenter(centerPoint)
-		self.move(frameGm.topLeft())
-
-	def startServer(self):
 		#Start Server Sockets Routine
 
 		#Port
@@ -162,12 +123,46 @@ class Ui_Dialog(QtGui.QMainWindow):
 
 		#Incia a thread para verificações de socket
 		try:
-			thread.start_new_thread(self.serverListen_thread, (host_socket, self.CONNECTION_LIST, self.USERS_LIST, self.FILES_LIST))
+			thread.start_new_thread(serverListen_thread, (host_socket, self.CONNECTION_LIST, USERS_LIST, FILES_LIST))
 		except:
 			print('Não foi possível receber os dados do servidor')
 
 		print "Sala de arquivos iniciada em: " + host_ip + ":" + str(self.port) + "."
 
+
+		fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.')
+		if fileName != '':
+			fileNameWithoutDirectory = os.path.basename(str(fileName))
+			fileExtension = os.path.splitext(fileNameWithoutDirectory)[1][1:]
+
+			item = QtGui.QListWidgetItem()
+			icon8 = QtGui.QIcon()
+			if not os.path.isfile('resources/fileExtensionIcons/%s-icon.png' % fileExtension):
+				fileExtension = 'undefined'
+			icon8.addPixmap(QtGui.QPixmap(_fromUtf8("resources/fileExtensionIcons/%s-icon.png" % str(fileExtension))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+			item.setIcon(icon8)
+			item.setText(_translate("Dialog", ("%s" % fileNameWithoutDirectory), None))
+
+			self.listWidget.addItem(item)
+			self.FILES_LIST.append([item, str(fileName)])
+			print self.FILES_LIST
+
+	def deleteCallBackFunction(self):
+		for itemIndex, itemDirectory in self.FILES_LIST:
+			if self.listWidget.currentItem() == itemIndex:
+				self.FILES_LIST.remove([itemIndex, itemDirectory])
+		self.listWidget.takeItem(self.listWidget.currentRow())
+		print self.FILES_LIST
+
+	def DisconnectButtonCallback(self):
+		self.close()
+		sys.exit()
+
+	def center(self):
+		frameGm = self.frameGeometry()
+		centerPoint = QtGui.QDesktopWidget().availableGeometry().center()
+		frameGm.moveCenter(centerPoint)
+		self.move(frameGm.topLeft())
 
 	#Essa função vai tratar toda a entrada de comandos no programa
 	# def nuke(self):
@@ -268,7 +263,7 @@ class Ui_Dialog(QtGui.QMainWindow):
 		return local.getsockname()[0]
 
 	# Thread para ouvir o socket do servidor
-	def serverListen_thread(self, sock, listt, users, files):
+	def serverListen_thread(sock, listt, users, files):
 		while True:
 
 			BUFFER = 4096
@@ -277,14 +272,14 @@ class Ui_Dialog(QtGui.QMainWindow):
 			host_socket = sock
 			FILES_LIST = files
 
-			read_sockets, write_sockets, error_sockets = select.select(CONNECTION_LIST, [], [])
+			read_sockets, write_sockets, error_sockets = select.select(self.CONNECTION_LIST, [], [])
 
 			for sock in read_sockets:
 				if sock == host_socket:
 					sockfd, addr = host_socket.accept()
 					self.CONNECTION_LIST.append(sockfd)
 					print "Cliente (%s, %s) conectado" %addr
-					self.awnser(host_socket, sock, str(FILES_LIST), CONNECTION_LIST)
+					awnser(host_socket, sock, str(FILES_LIST), self.CONNECTION_LIST)
 					usr = "(%s, %s)" %addr
 					USERS_LIST.append(usr)
 				else:
@@ -300,18 +295,6 @@ class Ui_Dialog(QtGui.QMainWindow):
 						continue
 
 			time.sleep(2)
-
-
-	#Função para o servidor responder a todos os clientes
-	def awnser(self, host, sock, message, lista):
-		CONNECTION_LIST = lista
-		for socket in CONNECTION_LIST:
-			if socket != host and socket != sock:
-				try:
-					socket.send(message)
-				except:
-					socket.close()
-					CONNECTION_LIST.remove(socket)
 
 	def retranslateUi(self, Dialog):
 		Dialog.setWindowTitle(_translate("Dialog", "Fitcht", None))
