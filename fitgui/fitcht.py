@@ -9,8 +9,7 @@ import time
 import readline
 from PyQt4 import QtCore, QtGui
 
-import pdb
-
+# Encoding and String formats stuff
 try:
 	_fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -25,7 +24,10 @@ except AttributeError:
 	def _translate(context, text, disambig):
 		return QtGui.QApplication.translate(context, text, disambig)
 
+# Class that holds all Fitcht.py Stuff
 class Ui_Dialog(QtGui.QMainWindow):
+
+	# This method starts UI Elements and handles all User Interface things
 	def setupUi(self, Dialog, serverName):
 		Dialog.setObjectName(_fromUtf8("Dialog"))
 		Dialog.setWindowModality(QtCore.Qt.NonModal)
@@ -122,6 +124,7 @@ class Ui_Dialog(QtGui.QMainWindow):
 			self.FILES_LIST.append([str(item), str(fileName)])
 			print self.FILES_LIST
 
+	# Callback Method to handle Delete click Event
 	def deleteCallBackFunction(self):
 		for itemIndex, itemDirectory in self.FILES_LIST:
 			if self.listWidget.currentItem() == itemIndex:
@@ -129,16 +132,19 @@ class Ui_Dialog(QtGui.QMainWindow):
 		self.listWidget.takeItem(self.listWidget.currentRow())
 		print self.FILES_LIST
 
+	# Callback Method to handle Disconnect click Event
 	def DisconnectButtonCallback(self):
 		self.close()
 		sys.exit()
 
+	# This method Center the application in startup
 	def center(self):
 		frameGm = self.frameGeometry()
 		centerPoint = QtGui.QDesktopWidget().availableGeometry().center()
 		frameGm.moveCenter(centerPoint)
 		self.move(frameGm.topLeft())
 
+	# This is the first method Called AFTER setupUI() and handles server Routines
 	def startServer(self):
 		#Start Server Sockets Routine
 
@@ -168,100 +174,7 @@ class Ui_Dialog(QtGui.QMainWindow):
 
 		print "Sala de arquivos iniciada em: " + host_ip + ":" + str(self.port) + "."
 
-
-	#Essa função vai tratar toda a entrada de comandos no programa
-	# def nuke(self):
-
-	# 	#Listas 
-	# 	USERS_LIST = []
-	# 	CONNECTION_LIST = []
-	# 	FILES_LIST = []
-
-	# 	host_ip = str(mylocal())
-
-	# 	#Inicia todo processo para formação de uma sala aqui
-	# 	host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	# 	host_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-	# 	host_socket.bind((host_ip, self.port))
-	# 	host_socket.listen(10)
-
-	# 	CONNECTION_LIST.append(host_socket)
-
-	# 	#Incia a thread para verificações de socket
-	# 	try:
-	# 		thread.start_new_thread(serverListen_thread, (host_socket, CONNECTION_LIST, USERS_LIST, FILES_LIST))
-	# 	except:
-	# 		print('Não foi possível receber os dados do servidor')
-
-	# 	print "Sala de arquivos iniciada em: " + host_ip + ":" + str(port) + "."
-
-	# 	if next == "/stop":
-	# 		host_socket.close()
-	# 		CONNECTION_LIST = []
-	# 		FILES_LIST = []
-	# 		print "A sala foi fechada, voltando para o programa..."
-					
-	# 	if next == "/add":
-	# 		print "Iniciando adição de arquivos."
-	# 		print "Entre com o caminho do arquivo:"
-	# 		caminho = str(raw_input(">"))
-	# 		open_files(caminho, FILES_LIST)
-	# 		print "Feito."
-
-	# 	if next == "/list":
-	# 		print FILES_LIST
-
-	# 	if next == "/users":
-	# 		print USERS_LIST
-							
-
-	# 	return True;
-
-	# if command == "/join":
-
-	# 	#Lista de arquivos para o cliente
-	# 	CLIENT_FILE_LIST = []
-
-	# 	#Inicia todo o processo para conectar na sala
-	# 	client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	# 	client_socket.settimeout(2)
-	# 	print "Entrando em modo cliente."
-	# 	print "Sala IP:"
-	# 	host = raw_input(">")
-				
-	# 	try:
-	# 		client_socket.connect((host, port))
-	# 	except:
-	# 		print "Impossivel conectar a essa sala, tenha certeza que o IP esta correto"
-	# 		return True
-
-	# 	print "Conectado com o servidor! Digite /help para ajuda."
-
-	# 	# Rotina para instanciamento do Thread client
-	# 	try:
-	# 		thread.start_new_thread(clientListen_thread, (client_socket, ))
-	# 	except:
-	# 		print('Não foi possível iniciar a thread do cliente.')
-				
-	# 	#Loop do /join
-	# 	while (True):
-	# 		next = get()
-					
-	# 		if  next != "/all" and \
-	# 			next != "/quit" and \
-	# 			next != "/list":
-	# 			print "Comando inválido! Digite /help para ajuda."
-
-	# 		if next == "/quit":
-	# 			print "Saindo do modo cliente e desconectando do servidor..."
-	# 			client_socket.close()
-	# 			break
-
-	# 		if next == "/list":
-	# 			break
-						
-	# 	return True
-
+	# Gets local IP
 	def mylocal(self):
 		local = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		local.connect(('google.com', 0))
@@ -313,6 +226,7 @@ class Ui_Dialog(QtGui.QMainWindow):
 					socket.close()
 					CONNECTION_LIST.remove(socket)
 
+	# This method rename the UI elements such as buttons, Dialog Title, etc.
 	def retranslateUi(self, Dialog):
 		Dialog.setWindowTitle(_translate("Dialog", "Fitcht", None))
 		self.pushButton.setText(_translate("Dialog", "Add Files", None))

@@ -14,6 +14,7 @@ except AttributeError:
 	def _translate(context, text, disambig):
 		return QtGui.QApplication.translate(context, text, disambig)
 
+# Entry Point UI Class
 class Ui_dialog(object):
 	def setupUi(self, dialog):
 		dialog.setObjectName(_fromUtf8("dialog"))

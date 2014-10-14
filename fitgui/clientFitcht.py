@@ -12,8 +12,7 @@ import readline
 import ast
 from PyQt4 import QtCore, QtGui
 
-import pdb
-
+# Encoding and String formats stuff
 try:
 	_fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -28,7 +27,10 @@ except AttributeError:
 	def _translate(context, text, disambig):
 		return QtGui.QApplication.translate(context, text, disambig)
 
+# Class that holds all Fitcht.py Stuff
 class Ui_Dialog(QtGui.QMainWindow):
+
+	# This method starts UI Elements and handles all User Interface stuff
 	def setupUi(self, Dialog, serverName):
 		self.serverName = serverName
 		Dialog.setObjectName(_fromUtf8("Dialog"))
@@ -172,10 +174,12 @@ class Ui_Dialog(QtGui.QMainWindow):
 
 		time.sleep(2)
 
+	# Method to Close the Program
 	def exitProgram(self):
 		self.close()
 		sys.exit()
 
+	# This method rename the UI elements such as buttons, Dialog Title, etc.
 	def retranslateUi(self, Dialog):
 		Dialog.setWindowTitle(_translate("Dialog", "Fitcht", None))
 		self.pushButton.setText(_translate("Dialog", "Download File", None))
@@ -185,7 +189,7 @@ class Ui_Dialog(QtGui.QMainWindow):
 
 from PyQt4 import QtDeclarative
 
-
+# This is the Secure QThread Class
 class clientListen_Qthread(QtCore.QThread):
 	def __init__(self):
 		QtCore.QThread.__init__(self)
