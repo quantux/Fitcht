@@ -10,6 +10,7 @@ import time
 import os
 import readline
 import ast
+import entryPoint
 from PyQt4 import QtCore, QtGui
 
 # Encoding and String formats stuff

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 #-*-coding: utf-8 -*-
+
 import sys, os
 import socket
 import urllib2
@@ -107,7 +108,8 @@ class Ui_Dialog(QtGui.QMainWindow):
 	# Callback Function to Add Files Button
 	def openFileButtonCallback(self):
 
-		fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.')
+		fileName = QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.').toUtf8()
+
 		if fileName != '':
 			fileNameWithoutDirectory = os.path.basename(str(fileName))
 			fileExtension = os.path.splitext(fileNameWithoutDirectory)[1][1:]
